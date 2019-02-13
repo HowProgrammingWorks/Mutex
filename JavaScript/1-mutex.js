@@ -17,7 +17,7 @@ class Mutex {
     Atomics.wait(this.lock, 0, LOCKED);
     Atomics.store(this.lock, 0, LOCKED);
     this.owner = true;
-    callback();
+    setTimeout(callback, 0);
     return true;
   }
 
@@ -50,8 +50,7 @@ if (isMainThread) {
         }
       }, 100);
     });
-  }
-  if (threadId === 2) {
+  } else {
     if (!mutex.leave()) {
       console.log('Can not leave mutex: not owner');
     }
