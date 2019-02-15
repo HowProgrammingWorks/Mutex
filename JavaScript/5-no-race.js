@@ -81,7 +81,9 @@ if (isMainThread) {
         point.move(1, 1);
         mutex.leave();
       }
+      await mutex.enter();
       console.dir({ point });
+      mutex.leave();
     })();
   } else {
     (async () => {
@@ -90,7 +92,9 @@ if (isMainThread) {
         point.move(-1, -1);
         mutex.leave();
       }
+      await mutex.enter();
       console.dir({ point });
+      mutex.leave();
     })();
   }
 }
