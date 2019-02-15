@@ -14,8 +14,11 @@ class Mutex {
   }
 
   async enter() {
-    Atomics.wait(this.lock, 0, LOCKED);
-    Atomics.store(this.lock, 0, LOCKED);
+    let prev = Atomics.exchange(this.lock, 0, LOCKED);
+    while (prev !== UNLOCKED) {
+      Atomics.wait(this.lock, 0, LOCKED);
+      prev = Atomics.exchange(this.lock, 0, LOCKED);
+    }
     this.owner = true;
     return true;
   }
