@@ -13,7 +13,7 @@ class Mutex {
     this.owner = false;
   }
 
-  async enter() {
+  enter() {
     let prev = Atomics.exchange(this.lock, 0, LOCKED);
     while (prev !== UNLOCKED) {
       Atomics.wait(this.lock, 0, LOCKED);
@@ -75,26 +75,22 @@ if (isMainThread) {
   const array = new Int32Array(workerData, 4, 2);
   const point = new Point(array);
   if (threadId === 1) {
-    (async () => {
       for (let i = 0; i < 1000000; i++) {
-        await mutex.enter();
-        point.move(1, 1);
-        mutex.leave();
-      }
-      await mutex.enter();
-      console.dir({ point });
+      mutex.enter();
+      point.move(1, 1);
       mutex.leave();
-    })();
+    }
+    mutex.enter();
+    console.dir({ point });
+    mutex.leave();
   } else {
-    (async () => {
-      for (let i = 0; i < 1000000; i++) {
-        await mutex.enter();
-        point.move(-1, -1);
-        mutex.leave();
-      }
-      await mutex.enter();
-      console.dir({ point });
+    for (let i = 0; i < 1000000; i++) {
+      mutex.enter();
+      point.move(-1, -1);
       mutex.leave();
-    })();
+    }
+    mutex.enter();
+    console.dir({ point });
+    mutex.leave();
   }
 }
