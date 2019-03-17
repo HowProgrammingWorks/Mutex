@@ -50,9 +50,7 @@ if (isMainThread) {
         }
       }, 100);
     });
-  } else {
-    if (!mutex.leave()) {
-      console.log('Can not leave mutex: not owner');
-    }
+  } else if (!mutex.leave()) {
+    console.log('Can not leave mutex: not owner');
   }
 }

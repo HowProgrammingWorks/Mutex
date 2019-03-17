@@ -75,7 +75,7 @@ if (isMainThread) {
   const array = new Int32Array(workerData, 4, 2);
   const point = new Point(array);
   if (threadId === 1) {
-      for (let i = 0; i < 1000000; i++) {
+    for (let i = 0; i < 1000000; i++) {
       mutex.enter();
       point.move(1, 1);
       mutex.leave();
