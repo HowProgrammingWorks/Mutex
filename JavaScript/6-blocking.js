@@ -11,10 +11,6 @@ class Mutex {
     this.lock = new Int32Array(shared, offset, 1);
     if (initial) Atomics.store(this.lock, 0, UNLOCKED);
     this.owner = false;
-    if (!Mutex.collection) {
-      Mutex.collection = new Set();
-    }
-    Mutex.collection.add(this);
   }
 
   enter() {
