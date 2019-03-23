@@ -53,7 +53,7 @@ if (isMainThread) {
     setTimeout(() => {
       mutex.leave();
       console.log(`Leave ${threadId}`);
-      loop();
+      setTimeout(loop, 0);
     }, 5000);
   };
   loop();

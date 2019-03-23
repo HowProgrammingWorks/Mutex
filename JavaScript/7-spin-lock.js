@@ -53,14 +53,14 @@ if (isMainThread) {
     console.log(`Interval ${threadId}`);
   }, 500);
 
-  const f = async () => {
+  const loop = async () => {
     await mutex.enter();
     console.log(`Enter ${threadId}`);
     setTimeout(() => {
       mutex.leave();
       console.log(`Leave ${threadId}`);
-      f();
+      setTimeout(loop, 0);
     }, 5000);
   };
-  f();
+  loop();
 }
