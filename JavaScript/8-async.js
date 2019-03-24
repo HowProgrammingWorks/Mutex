@@ -38,7 +38,7 @@ class Mutex {
       this.resolve();
       this.resolve = null;
     }
-  };
+  }
 
   leave() {
     if (!this.owner) return false;
