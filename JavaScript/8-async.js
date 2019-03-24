@@ -41,11 +41,10 @@ class Mutex {
   }
 
   leave() {
-    if (!this.owner) return false;
+    if (!this.owner) return;
     Atomics.store(this.lock, 0, UNLOCKED);
     this.port.postMessage('leave');
     this.owner = false;
-    return true;
   }
 }
 

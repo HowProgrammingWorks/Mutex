@@ -18,11 +18,10 @@ class Mutex {
     Atomics.store(this.lock, 0, LOCKED);
     this.owner = true;
     setTimeout(callback, 0);
-    return true;
   }
 
   leave() {
-    if (!this.owner) return false;
+    if (!this.owner) return;
     Atomics.store(this.lock, 0, UNLOCKED);
     Atomics.notify(this.lock, 0, 1);
     this.owner = false;
