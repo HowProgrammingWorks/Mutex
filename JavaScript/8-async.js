@@ -12,10 +12,11 @@ class Mutex {
     this.lock = new Int32Array(shared, offset, 1);
     if (initial) Atomics.store(this.lock, 0, UNLOCKED);
     this.owner = false;
+    this.trying = false;
     this.resolve = null;
     if (messagePort) {
       messagePort.on('message', kind => {
-        if (kind === 'leave') this.tryEnter();
+        if (kind === 'leave' && this.trying) this.tryEnter();
       });
     }
   }
@@ -23,6 +24,7 @@ class Mutex {
   enter() {
     return new Promise(resolve => {
       this.resolve = resolve;
+      this.trying = true;
       this.tryEnter();
     });
   }
@@ -32,6 +34,7 @@ class Mutex {
     let prev = Atomics.exchange(this.lock, 0, LOCKED);
     if (prev === UNLOCKED) {
       this.owner = true;
+      this.trying = false;
       this.resolve();
       this.resolve = null;
     }
@@ -79,14 +82,14 @@ if (isMainThread) {
     console.log(`Interval ${threadId}`);
   }, 500);
 
-  const f = async () => {
+  const loop = async () => {
     await mutex.enter();
     console.log(`Enter ${threadId}`);
     setTimeout(() => {
       mutex.leave();
       console.log(`Leave ${threadId}`);
-      setTimeout(f, 0);
+      setTimeout(loop, 0);
     }, 5000);
   };
-  f();
+  loop();
 }
