@@ -76,6 +76,10 @@ const locks = {
     if (kind === 'create') {
       const lock = new Mutex(resourceName, buffer);
       locks.resources.set(resourceName, lock);
+    } else if (kind === 'leave') {
+      for (const mutex of locks.resources) {
+        if (mutex.trying) tryEnter();
+      }
     }
   }
 };
@@ -106,17 +110,21 @@ if (isMainThread) {
 
   new Thread();
   new Thread();
+  setTimeout(() => {
+    process.exit(0);
+  }, 200);
 
 } else {
 
   locks.request('A', async lock => {
-    console.log(`Exclusive A in ${threadId}`);
+    console.log(`Enter A in ${threadId}`);
   });
 
-  setTimeout(() => {
-    locks.request('B', async lock => {
-      console.log(`Exclusive B in ${threadId}`);
+  setTimeout(async () => {
+    await locks.request('B', async lock => {
+      console.log(`Enter B in ${threadId}`);
     });
+    console.log(`Leave all in ${threadId}`);
   }, 100);
 
 }
