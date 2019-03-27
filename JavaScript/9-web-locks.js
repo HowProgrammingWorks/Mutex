@@ -19,22 +19,21 @@ class Mutex {
     this.callback = null;
   }
 
-  enter(callback) {
+  async enter(callback) {
     this.callback = callback;
     this.trying = true;
-    this.tryEnter();
+    await this.tryEnter();
   }
 
-  tryEnter() {
+  async tryEnter() {
     if (!this.callback) return;
     const prev = Atomics.exchange(this.lock, 0, LOCKED);
     if (prev === UNLOCKED) {
       this.owner = true;
       this.trying = false;
-      this.callback(this).then(() => {
-        this.leave();
-      });
+      await this.callback(this);
       this.callback = null;
+      this.leave();
     }
   }
 
@@ -49,7 +48,7 @@ class Mutex {
 const locks = {
   resources: new Map(),
 
-  request: (resourceName, callback) => {
+  request: async (resourceName, callback) => {
     let lock = locks.resources.get(resourceName);
     if (!lock) {
       const buffer = new SharedArrayBuffer(4);
@@ -57,8 +56,7 @@ const locks = {
       locks.resources.set(resourceName, lock);
       locks.sendMessage({ kind: 'create', resourceName, buffer });
     }
-    lock.enter(callback);
-    return lock;
+    await lock.enter(callback);
   },
 
   sendMessage: message => {
@@ -112,7 +110,7 @@ if (isMainThread) {
   new Thread();
   setTimeout(() => {
     process.exit(0);
-  }, 200);
+  }, 300);
 
 } else {
 
