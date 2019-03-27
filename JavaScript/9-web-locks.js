@@ -76,7 +76,7 @@ const locks = {
       locks.resources.set(resourceName, lock);
     } else if (kind === 'leave') {
       for (const mutex of locks.resources) {
-        if (mutex.trying) tryEnter();
+        if (mutex.trying) mutex.tryEnter();
       }
     }
   }
