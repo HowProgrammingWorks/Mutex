@@ -16,7 +16,7 @@ class Mutex {
   enter() {
     return new Promise(resolve => {
       const tryEnter = () => {
-        let prev = Atomics.exchange(this.lock, 0, LOCKED);
+        const prev = Atomics.exchange(this.lock, 0, LOCKED);
         if (prev === UNLOCKED) {
           this.owner = true;
           resolve();

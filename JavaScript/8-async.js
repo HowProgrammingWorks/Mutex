@@ -31,7 +31,7 @@ class Mutex {
 
   tryEnter() {
     if (!this.resolve) return;
-    let prev = Atomics.exchange(this.lock, 0, LOCKED);
+    const prev = Atomics.exchange(this.lock, 0, LOCKED);
     if (prev === UNLOCKED) {
       this.owner = true;
       this.trying = false;
@@ -59,7 +59,7 @@ class Thread {
           next.postMessage(kind);
         }
       }
-    })
+    });
   }
 }
 
