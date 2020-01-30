@@ -9,6 +9,10 @@ const threads = new Set();
 const LOCKED = 0;
 const UNLOCKED = 1;
 
+const locks = {
+  resources: new Map()
+};
+
 class Mutex {
   constructor(resourceName, shared, initial = false) {
     this.resourceName = resourceName;
@@ -45,39 +49,35 @@ class Mutex {
   }
 }
 
-const locks = {
-  resources: new Map(),
+locks.request = async (resourceName, callback) => {
+  let lock = locks.resources.get(resourceName);
+  if (!lock) {
+    const buffer = new SharedArrayBuffer(4);
+    lock = new Mutex(resourceName, buffer, true);
+    locks.resources.set(resourceName, lock);
+    locks.sendMessage({ kind: 'create', resourceName, buffer });
+  }
+  await lock.enter(callback);
+};
 
-  request: async (resourceName, callback) => {
-    let lock = locks.resources.get(resourceName);
-    if (!lock) {
-      const buffer = new SharedArrayBuffer(4);
-      lock = new Mutex(resourceName, buffer, true);
-      locks.resources.set(resourceName, lock);
-      locks.sendMessage({ kind: 'create', resourceName, buffer });
+locks.sendMessage = message => {
+  if (isMainThread) {
+    for (const thread of threads) {
+      thread.worker.postMessage(message);
     }
-    await lock.enter(callback);
-  },
+  } else {
+    parentPort.postMessage(message);
+  }
+};
 
-  sendMessage: message => {
-    if (isMainThread) {
-      for (const thread of threads) {
-        thread.worker.postMessage(message);
-      }
-    } else {
-      parentPort.postMessage(message);
-    }
-  },
-
-  receiveMessage: message => {
-    const { kind, resourceName, buffer } = message;
-    if (kind === 'create') {
-      const lock = new Mutex(resourceName, buffer);
-      locks.resources.set(resourceName, lock);
-    } else if (kind === 'leave') {
-      for (const mutex of locks.resources) {
-        if (mutex.trying) mutex.tryEnter();
-      }
+locks.receiveMessage = message => {
+  const { kind, resourceName, buffer } = message;
+  if (kind === 'create') {
+    const lock = new Mutex(resourceName, buffer);
+    locks.resources.set(resourceName, lock);
+  } else if (kind === 'leave') {
+    for (const mutex of locks.resources) {
+      if (mutex.trying) mutex.tryEnter();
     }
   }
 };
@@ -115,12 +115,12 @@ if (isMainThread) {
 } else {
 
   locks.request('A', async lock => {
-    console.log(`Enter A in ${threadId}`);
+    console.log(`Enter ${lock.resourceName} in ${threadId}`);
   });
 
   setTimeout(async () => {
     await locks.request('B', async lock => {
-      console.log(`Enter B in ${threadId}`);
+      console.log(`Enter ${lock.resourceName} in ${threadId}`);
     });
     console.log(`Leave all in ${threadId}`);
   }, 100);
