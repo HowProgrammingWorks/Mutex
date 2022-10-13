@@ -60,7 +60,7 @@ locks.request = async (resourceName, callback) => {
   await lock.enter(callback);
 };
 
-locks.sendMessage = message => {
+locks.sendMessage = (message) => {
   if (isMainThread) {
     for (const thread of threads) {
       thread.worker.postMessage(message);
@@ -70,7 +70,7 @@ locks.sendMessage = message => {
   }
 };
 
-locks.receiveMessage = message => {
+locks.receiveMessage = (message) => {
   const { kind, resourceName, buffer } = message;
   if (kind === 'create') {
     const lock = new Mutex(resourceName, buffer);
@@ -91,7 +91,7 @@ class Thread {
     const worker = new Worker(__filename);
     this.worker = worker;
     threads.add(this);
-    worker.on('message', message => {
+    worker.on('message', (message) => {
       for (const thread of threads) {
         if (thread.worker !== worker) {
           thread.worker.postMessage(message);
@@ -114,12 +114,12 @@ if (isMainThread) {
 
 } else {
 
-  locks.request('A', async lock => {
+  locks.request('A', async (lock) => {
     console.log(`Enter ${lock.resourceName} in ${threadId}`);
   });
 
   setTimeout(async () => {
-    await locks.request('B', async lock => {
+    await locks.request('B', async (lock) => {
       console.log(`Enter ${lock.resourceName} in ${threadId}`);
     });
     console.log(`Leave all in ${threadId}`);

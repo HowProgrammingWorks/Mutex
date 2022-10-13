@@ -15,14 +15,14 @@ class Mutex {
     this.trying = false;
     this.resolve = null;
     if (messagePort) {
-      messagePort.on('message', kind => {
+      messagePort.on('message', (kind) => {
         if (kind === 'leave' && this.trying) this.tryEnter();
       });
     }
   }
 
   enter() {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       this.resolve = resolve;
       this.trying = true;
       this.tryEnter();
@@ -53,7 +53,7 @@ class Thread {
     const worker = new Worker(__filename, { workerData: data });
     this.worker = worker;
     Thread.workers.add(worker);
-    worker.on('message', kind => {
+    worker.on('message', (kind) => {
       for (const next of Thread.workers) {
         if (next !== worker) {
           next.postMessage(kind);
