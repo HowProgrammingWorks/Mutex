@@ -2,7 +2,7 @@
 
 const {
   Worker, isMainThread, threadId, parentPort
-} = require('worker_threads');
+} = require('node:worker_threads');
 
 const threads = new Set();
 
