@@ -21,7 +21,7 @@ class Mutex {
   }
 
   leave() {
-    if (!this.owner) return;
+    if (!this.owner) return false;
     Atomics.store(this.lock, 0, UNLOCKED);
     Atomics.notify(this.lock, 0, 1);
     this.owner = false;
