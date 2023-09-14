@@ -265,6 +265,10 @@
     "template-curly-spacing": [
       "error",
       "never"
+    ],
+    "consistent-return": [
+      "error",
+      { "treatUndefinedAsUnspecified": true }
     ]
   }
 }
