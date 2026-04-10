@@ -67,5 +67,4 @@ if (isMainThread) {
       }, 100);
     });
   }
-
 }

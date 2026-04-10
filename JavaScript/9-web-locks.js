@@ -1,7 +1,10 @@
 'use strict';
 
 const {
-  Worker, isMainThread, threadId, parentPort
+  Worker,
+  isMainThread,
+  threadId,
+  parentPort,
 } = require('node:worker_threads');
 
 const threads = new Set();
@@ -10,7 +13,7 @@ const LOCKED = 0;
 const UNLOCKED = 1;
 
 const locks = {
-  resources: new Map()
+  resources: new Map(),
 };
 
 class Mutex {
@@ -105,15 +108,12 @@ class Thread {
 // Usage
 
 if (isMainThread) {
-
   new Thread();
   new Thread();
   setTimeout(() => {
     process.exit(0);
   }, 300);
-
 } else {
-
   locks.request('A', async (lock) => {
     console.log(`Enter ${lock.resourceName} in ${threadId}`);
   });
@@ -124,5 +124,4 @@ if (isMainThread) {
     });
     console.log(`Leave all in ${threadId}`);
   }, 100);
-
 }

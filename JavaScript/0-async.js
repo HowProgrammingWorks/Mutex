@@ -21,6 +21,10 @@ class AsyncMutex {
   }
 }
 
+// Usage
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 class Account {
   #mutex = new AsyncMutex();
   #balance = 0;
@@ -41,9 +45,6 @@ class Account {
     }
   }
 }
-
-const delay = (ms) =>
-  new Promise((resolve) => setTimeout(resolve, ms));
 
 const main = async () => {
   const account = new Account();

@@ -56,5 +56,4 @@ if (isMainThread) {
     setTimeout(loop, 0);
   };
   loop();
-
 }
